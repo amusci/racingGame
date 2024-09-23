@@ -3,11 +3,18 @@ extends CharacterBody2D
 var wheel_base = 70
 var steering_angle = 15
 var vehicle_velocity = Vector2.ZERO  # Renamed to avoid conflict
+var acceleration = Vector2.ZERO
+var engine_power = 800
 var steer_direction = 0
 
+
+
 func _physics_process(delta):
+	acceleration = Vector2.ZERO
 	get_input()
 	calculate_steering(delta)
+	vehicle_velocity += acceleration * delta
+
 	move_and_slide()  # No need to pass vehicle_velocity, it will use internal velocity
 
 func get_input():
@@ -18,10 +25,9 @@ func get_input():
 		turn -= 1
 	steer_direction = turn * steering_angle
 	
-	vehicle_velocity = Vector2.ZERO
-	
 	if Input.is_action_pressed("accelerate"):
-		vehicle_velocity = transform.x * 500
+		acceleration = transform.x * engine_power
+		
 
 func calculate_steering(delta):
 	var rear_wheel = position - transform.x * wheel_base / 2.0
