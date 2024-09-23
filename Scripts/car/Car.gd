@@ -6,14 +6,18 @@ var vehicle_velocity = Vector2.ZERO  # Renamed to avoid conflict
 var acceleration = Vector2.ZERO
 var engine_power = 800
 var steer_direction = 0
+var friction = -0.9
+var drag = -0.001
 
 
 
 func _physics_process(delta):
 	acceleration = Vector2.ZERO
 	get_input()
+	apply_friction()
 	calculate_steering(delta)
 	vehicle_velocity += acceleration * delta
+	print(vehicle_velocity)
 
 	move_and_slide()  # No need to pass vehicle_velocity, it will use internal velocity
 
@@ -27,7 +31,7 @@ func get_input():
 	
 	if Input.is_action_pressed("accelerate"):
 		acceleration = transform.x * engine_power
-		
+
 
 func calculate_steering(delta):
 	var rear_wheel = position - transform.x * wheel_base / 2.0
@@ -42,3 +46,13 @@ func calculate_steering(delta):
 
 	# Update the internal velocity
 	velocity = vehicle_velocity  # Assign the calculated velocity to the internal velocity
+
+func apply_friction():
+	if velocity.length() < 5:
+		velocity = Vector2.ZERO
+	
+	var friction_force = velocity * friction
+	var drag_force = velocity * velocity.length() * drag
+	acceleration += drag_force + friction_force
+	
+	
